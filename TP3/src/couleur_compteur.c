@@ -1,51 +1,61 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
-int egale(char *a, char *b) {
-    int i = 0;
-    while (a[i] != '\0' && b[i] != '\0') {
-        if (a[i] != b[i])
-            return 0;
-        i++;
-    }
-    return a[i] == '\0' && b[i] == '\0';
+struct Couleur {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+};
+
+struct CouleurOcc {
+    struct Couleur c;
+    int count;
+};
+
+int egale(struct Couleur a, struct Couleur b) {
+    return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
 }
 
 int main() {
 
-    char phrases[10][200] = {
-        "Bonjour, comment ca va ?",
-        "Le temps est magnifique aujourd'hui.",
-        "C'est une belle journee.",
-        "La programmation en C est amusante.",
-        "Les tableaux en C sont puissants.",
-        "Les pointeurs en C peuvent etre deroutants.",
-        "Il fait beau dehors.",
-        "La recherche dans un tableau est interessante.",
-        "Les structures de donnees sont importantes.",
-        "Programmer en C, c'est genial."
-    };
+    struct Couleur t[100];
+    struct CouleurOcc distinct[100];
+    int nd = 0;
 
-    char recherche[200];
-    printf("Entrez la phrase a chercher : ");
-    fgets(recherche, sizeof(recherche), stdin);
+    srand(time(NULL));
 
-    int i = 0;
-    while (recherche[i] != '\0') i++;
-    if (i > 0 && recherche[i-1] == '\n') recherche[i-1] = '\0';
+    for (int i = 0; i < 100; i++) {
+        t[i].r = rand() % 256;
+        t[i].g = rand() % 256;
+        t[i].b = rand() % 256;
+        t[i].a = rand() % 256;
+    }
 
-    int trouve = 0;
-
-    for (int j = 0; j < 10; j++) {
-        if (egale(phrases[j], recherche)) {
-            trouve = 1;
-            break;
+    for (int i = 0; i < 100; i++) {
+        int found = 0;
+        for (int j = 0; j < nd; j++) {
+            if (egale(t[i], distinct[j].c)) {
+                distinct[j].count++;
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            distinct[nd].c = t[i];
+            distinct[nd].count = 1;
+            nd++;
         }
     }
 
-    if (trouve)
-        printf("Phrase trouvee\n");
-    else
-        printf("Phrase non trouvee\n");
+    for (int i = 0; i < nd; i++)
+        printf("%02x %02x %02x %02x : %d\n",
+               distinct[i].c.r,
+               distinct[i].c.g,
+               distinct[i].c.b,
+               distinct[i].c.a,
+               distinct[i].count);
 
     return 0;
 }
